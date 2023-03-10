@@ -9,9 +9,7 @@ import { pipeline } from "stream";
 import { createGzip } from "zlib";
 import { Transform } from "@json2csv/node";
 import { getMedias, writeMedias, getMediasJSONReadableStream, savePosters } from "../../lib/fs-tools.js";
-
-//    medias/:id/pdf
-//         Export single media data as PDF
+import { asyncPDFGeneration, getPDFReadableStream } from "../../lib/pdf-tools.js";
 
 const mediasRouter = Express.Router()
 
@@ -75,6 +73,33 @@ mediasRouter.post("/:mediaId/poster", multer().single("poster"), async (req, res
         const fileName = req.params.mediaId + originalFileExtension
         await savePosters(fileName, req.file.buffer)
         res.send({ message: "Poster uploaded!" })
+    } catch (error) {
+        next(error)
+    }
+})
+
+// medias/:id/pdf
+//Export single media data as PDF
+mediasRouter.get("/:mediaId/pdf", async (req, res, next) => {
+    try {
+        res.setHeader("Content-Disposition", "attachment; filename=movie.pdf")
+        const medias = await getMedias()
+        const source = getPDFReadableStream(medias[0])
+        const destination = res
+
+        pipeline(source, destination, err => {
+            if (err) console.log(err)
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+mediasRouter.get("/:mediaId/asyncPDF", async (req, res, next) => {
+    try {
+        const medias = await getMedias()
+        await asyncPDFGeneration(medias[1])
+        res.send({ message: "PDF GENERATED CORRECTLY" })
     } catch (error) {
         next(error)
     }

@@ -16,4 +16,5 @@ export const writeMedias = mediasArray => writeJSON(mediasJSONPath, mediasArray)
 
 export const getMediasJSONReadableStream = () => createReadStream(mediasJSONPath)
 
-export const savePosters = (fileName, fileContentAsBuffer) => writeFile(join(postersPublicFolderPath, fileName), fileContentAsBuffer) 
+export const savePosters = (fileName, fileContentAsBuffer) => writeFile(join(postersPublicFolderPath, fileName), fileContentAsBuffer)
+export const getPDFWritableStream = filename => createWriteStream(join(dataFolderPath, filename)) 
