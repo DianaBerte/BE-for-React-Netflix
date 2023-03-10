@@ -8,7 +8,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { pipeline } from "stream";
 import { createGzip } from "zlib";
 import { Transform } from "@json2csv/node";
-import { getMedias, writeMedias, getMediasJSONReadableStream } from "../../lib/fs-tools.js";
+import { getMedias, writeMedias, getMediasJSONReadableStream, savePosters } from "../../lib/fs-tools.js";
 
 //    /medias/:id/poster
 //         POST Upload poster to single media
@@ -71,9 +71,10 @@ mediasRouter.get("/:mediaId", async (req, res, next) => {
 // /medias/:id/poster
 //POST Upload poster to single media
 
-mediasRouter.post("/:mediaId/poster", cloudinaryUploader, async (req, res, next) => {
+mediasRouter.post("/:mediaId/poster", multer().single("poster"), async (req, res, next) => {
     try {
         console.log("Poster:", req.file)
+        await savePosters(req.file.originalname, req.file.buffer)
         res.send({ message: "Poster uploaded!" })
     } catch (error) {
         next(error)
