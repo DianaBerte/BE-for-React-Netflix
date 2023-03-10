@@ -3,6 +3,7 @@ import listEndpoints from "express-list-endpoints";
 import cors from "cors";
 import { join } from "path";
 import createHttpError from "http-errors";
+import mediasRouter from "./api/medias/index.js";
 
 const server = Express()
 const port = process.env.PORT || 3001
@@ -27,6 +28,7 @@ server.use(
 server.use(Express.json())
 
 // ************************** ENDPOINTS ***********************
+server.use("/medias", mediasRouter)
 
 server.listen(port, () => {
     console.table(listEndpoints(server))
