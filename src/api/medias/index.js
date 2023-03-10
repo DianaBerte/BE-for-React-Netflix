@@ -74,7 +74,9 @@ mediasRouter.get("/:mediaId", async (req, res, next) => {
 mediasRouter.post("/:mediaId/poster", multer().single("poster"), async (req, res, next) => {
     try {
         console.log("Poster:", req.file)
-        await savePosters(req.file.originalname, req.file.buffer)
+        const originalFileExtension = extname(req.file.originalname)
+        const fileName = req.params.mediaId + originalFileExtension
+        await savePosters(fileName, req.file.buffer)
         res.send({ message: "Poster uploaded!" })
     } catch (error) {
         next(error)
