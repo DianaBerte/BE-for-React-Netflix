@@ -25,6 +25,19 @@ mediasRouter.post("/", async (req, res, next) => {
     res.status(201).send({ id: newMedia.id })
 })
 
+mediasRouter.get("/", async (req, res, next) => {
+    try {
+        const medias = await getMedias()
+        if (req.query && req.query.category) {
+            const filteredMedias = medias.filter(media => media.category === req.query.category)
+            res.send(filteredMedias)
+        } else {
+            res.send(medias)
+        }
+    } catch (error) {
+        next(error)
+    }
+})
 
 
 
