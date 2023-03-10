@@ -10,8 +10,6 @@ import { createGzip } from "zlib";
 import { Transform } from "@json2csv/node";
 import { getMedias, writeMedias, getMediasJSONReadableStream, savePosters } from "../../lib/fs-tools.js";
 
-//    /medias/:id/poster
-//         POST Upload poster to single media
 //    medias/:id/pdf
 //         Export single media data as PDF
 
@@ -70,7 +68,6 @@ mediasRouter.get("/:mediaId", async (req, res, next) => {
 
 // /medias/:id/poster
 //POST Upload poster to single media
-
 mediasRouter.post("/:mediaId/poster", multer().single("poster"), async (req, res, next) => {
     try {
         console.log("Poster:", req.file)
