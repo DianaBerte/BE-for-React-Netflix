@@ -1,13 +1,15 @@
 import Express from "express";
 import uniqid from "uniqid";
 import createHttpError from "http-errors";
-import { getMedias, writeMedias } from "../../lib/fs-tools.js";
+import multer from "multer";
+import { extname } from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { pipeline } from "stream";
+import { createGzip } from "zlib";
+import { Transform } from "@json2csv/node";
+import { getMedias, writeMedias, getMediasJSONReadableStream } from "../../lib/fs-tools.js";
 
-//     /medias
-//         POST Media
-//         GET Media (list)
-//    /medias/:id
-//         GET Media (single)
 //    /medias/:id/poster
 //         POST Upload poster to single media
 //    medias/:id/pdf
@@ -15,6 +17,16 @@ import { getMedias, writeMedias } from "../../lib/fs-tools.js";
 
 const mediasRouter = Express.Router()
 
+const cloudinaryUploader = multer({
+    storage: new CloudinaryStorage({
+        cloudinary,
+        params: {
+            folder: "netflix/movies",
+        },
+    }),
+}).single("poster")
+
+//POST Media
 mediasRouter.post("/", async (req, res, next) => {
     const newMedia = { ...req.body, id: uniqid(), createdAt: new Date(), updatedAt: new Date() }
 
@@ -25,6 +37,7 @@ mediasRouter.post("/", async (req, res, next) => {
     res.status(201).send({ id: newMedia.id })
 })
 
+//GET Media (list)
 mediasRouter.get("/", async (req, res, next) => {
     try {
         const medias = await getMedias()
@@ -39,6 +52,7 @@ mediasRouter.get("/", async (req, res, next) => {
     }
 })
 
+//GET Media (single)
 mediasRouter.get("/:mediaId", async (req, res, next) => {
     try {
         const mediasArray = await getMedias()
@@ -49,6 +63,18 @@ mediasRouter.get("/:mediaId", async (req, res, next) => {
         } else {
             next(createHttpError(404, `Movie with id ${req.params.mediaId} was not found!`))
         }
+    } catch (error) {
+        next(error)
+    }
+})
+
+// /medias/:id/poster
+//POST Upload poster to single media
+
+mediasRouter.post("/:mediaId/poster", cloudinaryUploader, async (req, res, next) => {
+    try {
+        console.log("Poster:", req.file)
+        res.send({ message: "Poster uploaded!" })
     } catch (error) {
         next(error)
     }
