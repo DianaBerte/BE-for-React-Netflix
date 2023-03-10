@@ -39,6 +39,21 @@ mediasRouter.get("/", async (req, res, next) => {
     }
 })
 
+mediasRouter.get("/:mediaId", async (req, res, next) => {
+    try {
+        const mediasArray = await getMedias()
+
+        const foundMedia = mediasArray.find(media => media.id === req.params.mediaId)
+        if (foundMedia) {
+            res.send(foundMedia)
+        } else {
+            next(createHttpError(404, `Movie with id ${req.params.mediaId} was not found!`))
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 
 export default mediasRouter
